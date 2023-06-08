@@ -1,14 +1,18 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { PostsController } from './posts/posts.controller';
 import { CategoriesController } from './categories/categories.controller';
 import { CommentsController } from './comments/comments.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { UsersController } from './users/users.controller';
+import { AuthService } from './auth/auth.service';
+import { UsersService } from './users/users.service';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    UsersModule, AuthModule,
     ConfigModule.forRoot({
       envFilePath: [`.${process.env.NODE_ENV}.env`],
     }),
@@ -23,7 +27,12 @@ import { ConfigModule } from '@nestjs/config';
       synchronize: false,
     }),
   ],
-  controllers: [AppController, PostsController, CategoriesController, CommentsController],
-  providers: [AppService],
+  controllers: [
+    PostsController, CategoriesController,
+    CommentsController, UsersController,
+  ],
+  providers: [
+    UsersService, AuthService,
+  ],
 })
 export class AppModule { }
