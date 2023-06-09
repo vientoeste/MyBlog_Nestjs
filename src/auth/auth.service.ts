@@ -3,6 +3,7 @@ import { compare as comparePw } from 'bcrypt';
 import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import { UserLoginDto } from './dto/user-login.dto';
 import { IssueTokenDto } from './dto/issue-token.dto';
+import { TokenPayload } from './dto/token-payload.dto';
 
 @Injectable()
 export class AuthService {
@@ -28,13 +29,12 @@ export class AuthService {
     return token;
   }
 
-  verify(jwtToken: string) {
+  validateToken(jwtToken: string) {
     try {
-      const payload = verify(jwtToken, 'este') as (JwtPayload | string) & IssueTokenDto;
-      const { uuid, email } = payload;
-
+      const payload = verify(jwtToken, process.env.JWT_SECRET) as (JwtPayload | string) & TokenPayload;
+      const { aud, email } = payload;
       return {
-        userUuid: uuid,
+        userUuid: aud,
         email,
       };
     } catch (e) {

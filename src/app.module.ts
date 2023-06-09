@@ -9,6 +9,9 @@ import { AuthService } from './auth/auth.service';
 import { UsersService } from './users/users.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { UserEntity } from './users/entities/user.entity';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { JwtInterceptor } from './interceptor/jwt.interceptor';
 
 @Module({
   imports: [
@@ -26,6 +29,7 @@ import { AuthModule } from './auth/auth.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: false,
     }),
+    TypeOrmModule.forFeature([UserEntity]),
   ],
   controllers: [
     PostsController, CategoriesController,
@@ -33,6 +37,11 @@ import { AuthModule } from './auth/auth.module';
   ],
   providers: [
     UsersService, AuthService,
+
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: JwtInterceptor,
+    },
   ],
 })
 export class AppModule { }
