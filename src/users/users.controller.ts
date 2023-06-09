@@ -5,7 +5,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UserLoginDto } from './dto/user-login.dto';
 import { User } from './dto/user-info.dto';
 import { UsersService } from './users.service';
-import { AuthService } from 'src/auth/auth.service';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RequestWithUser } from 'src/common/user.interface';
 
@@ -14,7 +13,6 @@ import { RequestWithUser } from 'src/common/user.interface';
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly authService: AuthService,
   ) { }
 
   @HttpCode(201)
