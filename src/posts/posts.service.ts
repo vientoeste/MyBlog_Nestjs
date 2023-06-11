@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PostEntity } from './entities/post.entity';
 import { Repository } from 'typeorm';
 import { NoMoreContentError } from 'src/common/error';
+import { CreatePostDto } from './dto/create-post.dto';
+import { createUUID, getDateForDb } from 'src/common/util';
 
 @Injectable()
 export class PostsService {
@@ -26,5 +28,16 @@ export class PostsService {
       throw new InternalServerErrorException('query failed');
     }
     return posts;
+  }
+
+  async createPost(createPostDto: CreatePostDto) {
+    const now = getDateForDb();
+    await this.postsRepository.insert({
+      uuid: createUUID(createPostDto.title.concat(now)),
+      title: createPostDto.title,
+      content: createPostDto.content,
+      category_id: createPostDto.categoryId,
+      created_at: now,
+    });
   }
 }

@@ -17,8 +17,8 @@ export class PostEntity {
   @Column({ length: 8000 })
   content: string;
 
-  @Column({ length: 5 })
-  category_id: string;
+  @Column()
+  category_id: number;
 
   @Column({ length: 19 })
   created_at: string;
