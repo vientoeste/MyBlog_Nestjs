@@ -1,8 +1,14 @@
+import { uuidTransformer } from 'src/common/util';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('post')
 export class PostEntity {
-  @PrimaryColumn()
+  @PrimaryColumn({
+    type: 'binary',
+    length: 16,
+    transformer: uuidTransformer,
+    generated: 'uuid',
+  })
   uuid: string;
 
   @Column({ length: 60 })
