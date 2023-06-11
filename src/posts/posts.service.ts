@@ -16,7 +16,7 @@ export class PostsService {
       where: {
         is_deleted: false,
       },
-      skip: offset,
+      skip: offset * 20,
       take: 20,
     });
     if (Array.isArray(posts) && posts.length === 0) {
