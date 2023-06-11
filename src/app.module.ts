@@ -12,6 +12,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserEntity } from './users/entities/user.entity';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtInterceptor } from './interceptor/jwt.interceptor';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { JwtInterceptor } from './interceptor/jwt.interceptor';
       synchronize: false,
     }),
     TypeOrmModule.forFeature([UserEntity]),
+    PostsModule,
   ],
   controllers: [
     PostsController, CategoriesController,
