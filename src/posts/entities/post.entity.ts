@@ -20,9 +20,9 @@ export class PostEntity {
   @Column({ length: 19 })
   updated_at: string;
 
-  @Column({ length: 1 })
+  @Column()
   is_published: boolean;
 
-  @Column({ length: 1 })
+  @Column()
   is_deleted: boolean;
 }
