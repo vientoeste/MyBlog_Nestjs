@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostEntity } from './entities/post.entity';
 import { Repository } from 'typeorm';
@@ -39,5 +39,16 @@ export class PostsService {
       category_id: createPostDto.categoryId,
       created_at: now,
     });
+  }
+
+  async getPostByUUID(uuid: string) {
+    const post = await this.postsRepository.findOneBy({
+      uuid,
+      is_deleted: false,
+    });
+    if (!post) {
+      throw new NotFoundException();
+    }
+    return post;
   }
 }

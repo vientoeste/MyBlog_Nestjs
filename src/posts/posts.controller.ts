@@ -28,10 +28,11 @@ export class PostsController {
 
   @Get(':post_uuid')
   @HttpCode(200)
-  getPostByUuid(
-    @Param('post_uuid') postUuid: string,
+  async getPostByUuid(
+    @Param('post_uuid', new ParseUUIDPipe({ errorHttpStatusCode: 406 })) postUuid: string,
   ) {
-    return;
+    const post = await this.postsService.getPostByUUID(postUuid);
+    return post;
   }
 
   @Patch(':post_uuid')
