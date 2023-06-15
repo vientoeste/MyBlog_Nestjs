@@ -5,12 +5,15 @@ import { Repository } from 'typeorm';
 import { NoMoreContentError } from 'src/common/error';
 import { CreatePostDto } from './dto/create-post.dto';
 import { createUUID, getDateForDb } from 'src/common/util';
+import { PostHistoryEntity } from './entities/post_history.entity';
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectRepository(PostEntity)
     private postsRepository: Repository<PostEntity>,
+    @InjectRepository(PostHistoryEntity)
+    private postHistoriesRepository: Repository<PostHistoryEntity>,
   ) { }
 
   async getPosts(offset: number) {
@@ -50,5 +53,11 @@ export class PostsService {
       throw new NotFoundException();
     }
     return post;
+  }
+
+  async deletePostByUUID(uuid: string) {
+    await this.postsRepository.update(uuid, {
+      is_deleted: true,
+    });
   }
 }

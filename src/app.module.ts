@@ -15,6 +15,7 @@ import { JwtInterceptor } from './interceptor/jwt.interceptor';
 import { PostsModule } from './posts/posts.module';
 import { PostsService } from './posts/posts.service';
 import { PostEntity } from './posts/entities/post.entity';
+import { PostHistoryEntity } from './posts/entities/post_history.entity';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { PostEntity } from './posts/entities/post.entity';
     }),
     TypeOrmModule.forFeature([UserEntity]),
     TypeOrmModule.forFeature([PostEntity]),
+    TypeOrmModule.forFeature([PostHistoryEntity]),
     PostsModule,
   ],
   controllers: [

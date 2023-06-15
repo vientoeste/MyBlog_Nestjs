@@ -46,9 +46,10 @@ export class PostsController {
 
   @Delete(':post_uuid')
   @HttpCode(204)
-  deletePostByUuid(
+  async deletePostByUuid(
     @Param('post_uuid') postUuid: string,
   ) {
+    await this.postsService.deletePostByUUID(postUuid);
     return;
   }
 }
