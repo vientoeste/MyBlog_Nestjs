@@ -2,10 +2,11 @@ import { Injectable, InternalServerErrorException, NotFoundException } from '@ne
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostEntity } from './entities/post.entity';
 import { Repository } from 'typeorm';
-import { NoMoreContentError } from 'src/common/error';
+import { NoMoreContentError, NotUpdatedException } from 'src/common/error';
 import { CreatePostDto } from './dto/create-post.dto';
 import { createUUID, getDateForDb } from 'src/common/util';
 import { PostHistoryEntity } from './entities/post_history.entity';
+import { ResultSetHeader } from 'mysql2';
 
 @Injectable()
 export class PostsService {
@@ -56,8 +57,33 @@ export class PostsService {
   }
 
   async deletePostByUUID(uuid: string) {
-    await this.postsRepository.update(uuid, {
+    // [TODO] needs refactoring to reduce query count
+    const post = await this.postsRepository.findOneBy({
+      uuid,
+    });
+    if (!post) {
+      throw new NotFoundException('post not found');
+    }
+
+    const { affected } = await this.postsRepository.update({ uuid, is_deleted: false }, {
       is_deleted: true,
     });
+    if (affected !== 1) {
+      console.log('not updated');
+      throw new NotUpdatedException();
+    }
+
+    const { raw } = await this.postHistoriesRepository.insert({
+      post_uuid: post.uuid,
+      title: post.title,
+      content: post.content,
+      category_id: post.category_id,
+      deleted_at: getDateForDb(),
+    }) as { raw: ResultSetHeader };
+    const { affectedRows } = raw;
+    if (affectedRows !== 1) {
+      // [TODO] need to add the way for storing history 
+      throw new InternalServerErrorException();
+    }
   }
 }
