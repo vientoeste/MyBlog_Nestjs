@@ -13,3 +13,10 @@ export class NotUpdatedException extends HttpException {
     this.name = 'NotUpdatedException';
   }
 }
+
+export class NoMoreJobException extends HttpException {
+  constructor() {
+    super('No more remaining job', 404);
+    this.name = 'NoMoreJobException';
+  }
+}

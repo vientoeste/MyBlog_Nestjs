@@ -1,4 +1,5 @@
 import { v5 } from 'uuid';
+import { NoMoreJobException } from './exception';
 
 export const uuidTransformer = {
   to: (uuid: string | undefined) => uuid ? Buffer.from(uuid.replace(/-/g, ''), 'hex') : uuid,
@@ -8,3 +9,21 @@ export const uuidTransformer = {
 export const createUUID = (name: string) => v5(name, process.env.NAMESPACE_UUID);
 
 export const getDateForDb = () => new Date().toISOString().replace(/T|Z/g, ' ').slice(0, -5);
+
+// [TODO] needs to connect with prometheus
+// [TODO] will it needs dependency?
+export class HistoryMonitor {
+  // [TODO] type-safe logic needed
+  private failedJob: Record<string, undefined>[];
+
+  insertFailedJob(record: Record<string, undefined>) {
+    this.failedJob.push(record);
+  }
+
+  getFailedJobs() {
+    if (this.failedJob.length > 0) {
+      return this.failedJob[0];
+    }
+    throw new NoMoreJobException();
+  }
+}

@@ -7,6 +7,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { createUUID, getDateForDb } from 'src/common/util';
 import { PostHistoryEntity } from './entities/post_history.entity';
 import { ResultSetHeader } from 'mysql2';
+import { historyMonitor } from 'src/main';
 
 @Injectable()
 export class PostsService {
@@ -73,16 +74,18 @@ export class PostsService {
       throw new NotUpdatedException();
     }
 
-    const { raw } = await this.postHistoriesRepository.insert({
+    const postHistoryObjToStore = {
       post_uuid: post.uuid,
       title: post.title,
       content: post.content,
       category_id: post.category_id,
       deleted_at: getDateForDb(),
-    }) as { raw: ResultSetHeader };
+    };
+    const { raw } = await this.postHistoriesRepository.insert(postHistoryObjToStore) as { raw: ResultSetHeader };
     const { affectedRows } = raw;
     if (affectedRows !== 1) {
       // [TODO] need to add the way for storing history 
+      historyMonitor.insertFailedJob(postHistoryObjToStore as Record<string, undefined>);
       throw new InternalServerErrorException();
     }
   }

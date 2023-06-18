@@ -1,6 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { HistoryMonitor } from './common/util';
+
+export const historyMonitor = new HistoryMonitor();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
