@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException, NotFoundException } from '@ne
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostEntity } from './entities/post.entity';
 import { Repository } from 'typeorm';
-import { NoMoreContentException, NotUpdatedException } from 'src/common/error';
+import { NoMoreContentException, NotUpdatedException } from 'src/common/exception';
 import { CreatePostDto } from './dto/create-post.dto';
 import { createUUID, getDateForDb } from 'src/common/util';
 import { PostHistoryEntity } from './entities/post_history.entity';
