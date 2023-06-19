@@ -16,6 +16,7 @@ import { PostsModule } from './posts/posts.module';
 import { PostsService } from './posts/posts.service';
 import { PostEntity } from './posts/entities/post.entity';
 import { PostHistoryEntity } from './posts/entities/post_history.entity';
+import { MonitorController } from './monitor/monitor.controller';
 
 @Module({
   imports: [
@@ -40,7 +41,7 @@ import { PostHistoryEntity } from './posts/entities/post_history.entity';
   ],
   controllers: [
     PostsController, CategoriesController,
-    CommentsController, UsersController,
+    CommentsController, UsersController, MonitorController,
   ],
   providers: [
     UsersService, AuthService,

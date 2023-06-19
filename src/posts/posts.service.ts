@@ -81,12 +81,14 @@ export class PostsService {
       category_id: post.category_id,
       deleted_at: getDateForDb(),
     };
-    const { raw } = await this.postHistoriesRepository.insert(postHistoryObjToStore) as { raw: ResultSetHeader };
-    const { affectedRows } = raw;
-    if (affectedRows !== 1) {
-      // [TODO] need to add the way for storing history 
-      historyMonitor.insertFailedJob(postHistoryObjToStore as Record<string, undefined>);
-      throw new InternalServerErrorException();
-    }
+    this.postHistoriesRepository.insert(postHistoryObjToStore)
+      .then((v: { raw: ResultSetHeader }) => {
+        if (v.raw.affectedRows !== 1) {
+          throw new InternalServerErrorException();
+        }
+      })
+      .catch(() => {
+        historyMonitor.insertFailedJob(postHistoryObjToStore as Record<string, undefined>);
+      });
   }
 }
