@@ -37,10 +37,11 @@ export class PostsController {
 
   @Patch(':post_uuid')
   @HttpCode(200)
-  updatePostByUuid(
+  async updatePostByUuid(
     @Param('post_uuid') postUuid: string,
     @Body() updatePostDto: UpdatePostDto,
   ) {
+    await this.postsService.updatePost(updatePostDto, postUuid);
     return;
   }
 

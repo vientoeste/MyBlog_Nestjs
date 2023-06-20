@@ -8,6 +8,7 @@ import { createUUID, getDateForDb } from 'src/common/util';
 import { PostHistoryEntity } from './entities/post_history.entity';
 import { ResultSetHeader } from 'mysql2';
 import { historyMonitor } from 'src/main';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Injectable()
 export class PostsService {
@@ -74,6 +75,29 @@ export class PostsService {
       throw new NotUpdatedException();
     }
 
+    const postHistoryObjToStore = {
+      post_uuid: post.uuid,
+      title: post.title,
+      content: post.content,
+      category_id: post.category_id,
+      deleted_at: getDateForDb(),
+    };
+    this.postHistoriesRepository.insert(postHistoryObjToStore)
+      .then((v: { raw: ResultSetHeader }) => {
+        if (v.raw.affectedRows !== 1) {
+          throw new InternalServerErrorException();
+        }
+      })
+      .catch(() => {
+        historyMonitor.insertFailedJob(postHistoryObjToStore as Record<string, undefined>);
+      });
+  }
+
+  async updatePost(columnsToUpdate: UpdatePostDto, uuid: string) {
+    await this.postsRepository.update(uuid, columnsToUpdate);
+    const post = await this.postsRepository.findOneBy({
+      uuid,
+    });
     const postHistoryObjToStore = {
       post_uuid: post.uuid,
       title: post.title,
