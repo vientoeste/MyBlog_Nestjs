@@ -1,0 +1,12 @@
+{
+    "configurations": [
+        {
+            "type": "node-terminal",
+            "request": "launch",
+            "name": "dev",
+            "command": "npm run start:dev",
+            "cwd": "${workspaceFolder}",
+            "outputCapture": "std",
+        }
+    ]
+}
