@@ -2,6 +2,7 @@ import { Body, Controller, DefaultValuePipe, Delete, Get, HttpCode, Param, Parse
 import { UpdatePostDto } from './dto/update-post.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostsService } from './posts.service';
+import { PatchValidationPipe } from 'src/common/pipes/patch-validation.pipe';
 
 @Controller('posts')
 export class PostsController {
@@ -39,7 +40,7 @@ export class PostsController {
   @HttpCode(200)
   async updatePostByUuid(
     @Param('post_uuid') postUuid: string,
-    @Body() updatePostDto: UpdatePostDto,
+    @Body(new PatchValidationPipe<UpdatePostDto>(['title', 'content', 'categoryId'])) updatePostDto: UpdatePostDto,
   ) {
     await this.postsService.updatePost(updatePostDto, postUuid);
     return;

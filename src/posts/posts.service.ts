@@ -93,8 +93,11 @@ export class PostsService {
       });
   }
 
-  async updatePost(columnsToUpdate: UpdatePostDto, uuid: string) {
-    await this.postsRepository.update(uuid, columnsToUpdate);
+  async updatePost(
+    postDto: UpdatePostDto,
+    uuid: string,
+  ) {
+    await this.postsRepository.update(uuid, postDto);
     const post = await this.postsRepository.findOneBy({
       uuid,
     });
