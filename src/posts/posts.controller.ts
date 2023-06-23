@@ -3,6 +3,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostsService } from './posts.service';
 import { PatchValidationPipe } from 'src/common/pipes/patch-validation.pipe';
+import { camelCaseToSnakeCase } from 'src/common/util';
 
 @Controller('posts')
 export class PostsController {
@@ -42,7 +43,9 @@ export class PostsController {
     @Param('post_uuid') postUuid: string,
     @Body(new PatchValidationPipe<UpdatePostDto>(['title', 'content', 'categoryId'])) updatePostDto: UpdatePostDto,
   ) {
-    await this.postsService.updatePost(updatePostDto, postUuid);
+    // [TODO] optimizable
+    const dto = camelCaseToSnakeCase(new UpdatePostDto(updatePostDto) as Record<string, string | number>);
+    await this.postsService.updatePost(dto, postUuid);
     return;
   }
 

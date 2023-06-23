@@ -27,3 +27,13 @@ export class HistoryMonitor {
     throw new NoMoreJobException();
   }
 }
+
+export const camelCaseToSnakeCase = (obj: Record<string, string | number>) => Object.fromEntries(
+  Object.entries(obj).map((v) => {
+    if (/[A-Z]/g.test(v[0])) {
+      return [v[0].replace(/[A-Z]/g, '_'.concat(v[0][v[0].search(/[A-Z]/g)].toLowerCase())), v[1]];
+    } else {
+      return v;
+    }
+  }),
+);

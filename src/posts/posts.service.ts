@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostEntity } from './entities/post.entity';
 import { Repository } from 'typeorm';
@@ -97,10 +97,13 @@ export class PostsService {
     postDto: UpdatePostDto,
     uuid: string,
   ) {
-    await this.postsRepository.update(uuid, postDto);
     const post = await this.postsRepository.findOneBy({
       uuid,
+      is_deleted: false,
     });
+    if (!post) {
+      throw new ForbiddenException();
+    }
     const postHistoryObjToStore = {
       post_uuid: post.uuid,
       title: post.title,
@@ -108,6 +111,8 @@ export class PostsService {
       category_id: post.category_id,
       deleted_at: getDateForDb(),
     };
+
+    await this.postsRepository.update(uuid, postDto);
     this.postHistoriesRepository.insert(postHistoryObjToStore)
       .then((v: { raw: ResultSetHeader }) => {
         if (v.raw.affectedRows !== 1) {
