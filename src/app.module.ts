@@ -17,6 +17,8 @@ import { PostsService } from './posts/posts.service';
 import { PostEntity } from './posts/entities/post.entity';
 import { PostHistoryEntity } from './posts/entities/post_history.entity';
 import { MonitorController } from './monitor/monitor.controller';
+import { CategoriesService } from './categories/categories.service';
+import { CategoryEntity } from './categories/entities/category.entity';
 
 @Module({
   imports: [
@@ -37,6 +39,7 @@ import { MonitorController } from './monitor/monitor.controller';
     TypeOrmModule.forFeature([UserEntity]),
     TypeOrmModule.forFeature([PostEntity]),
     TypeOrmModule.forFeature([PostHistoryEntity]),
+    TypeOrmModule.forFeature([CategoryEntity]),
     PostsModule,
   ],
   controllers: [
@@ -50,6 +53,7 @@ import { MonitorController } from './monitor/monitor.controller';
       provide: APP_INTERCEPTOR,
       useClass: JwtInterceptor,
     },
+    CategoriesService,
   ],
 })
 export class AppModule { }
