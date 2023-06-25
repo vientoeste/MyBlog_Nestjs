@@ -19,6 +19,7 @@ import { PostHistoryEntity } from './posts/entities/post_history.entity';
 import { MonitorController } from './monitor/monitor.controller';
 import { CategoriesService } from './categories/categories.service';
 import { CategoryEntity } from './categories/entities/category.entity';
+import { CategoryHistoryEntity } from './categories/entities/category_history.entity';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { CategoryEntity } from './categories/entities/category.entity';
     TypeOrmModule.forFeature([PostEntity]),
     TypeOrmModule.forFeature([PostHistoryEntity]),
     TypeOrmModule.forFeature([CategoryEntity]),
+    TypeOrmModule.forFeature([CategoryHistoryEntity]),
     PostsModule,
   ],
   controllers: [
