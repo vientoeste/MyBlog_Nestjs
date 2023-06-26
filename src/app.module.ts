@@ -20,6 +20,7 @@ import { MonitorController } from './monitor/monitor.controller';
 import { CategoriesService } from './categories/categories.service';
 import { CategoryEntity } from './categories/entities/category.entity';
 import { CategoryHistoryEntity } from './categories/entities/category_history.entity';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { CategoryHistoryEntity } from './categories/entities/category_history.en
     TypeOrmModule.forFeature([CategoryEntity]),
     TypeOrmModule.forFeature([CategoryHistoryEntity]),
     PostsModule,
+    CategoriesModule,
   ],
   controllers: [
     PostsController, CategoriesController,
