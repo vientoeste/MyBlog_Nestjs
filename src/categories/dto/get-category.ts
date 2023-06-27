@@ -3,7 +3,7 @@ export class CategoryDto {
 
   readonly name: string;
 
-  readonly description: string;
+  readonly description?: string;
 
   readonly createdAt: string;
 
