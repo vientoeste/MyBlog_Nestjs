@@ -29,10 +29,11 @@ export class CategoriesController {
 
   @Get(':categoryId')
   @HttpCode(200)
-  fetchPostsById(
+  async fetchPostsById(
     @Param('categoryId') categoryId: number,
   ) {
-    return;
+    const posts = await this.categoriesService.getPostsByCategory(categoryId);
+    return posts;
   }
 
   @Patch(':categoryId')
