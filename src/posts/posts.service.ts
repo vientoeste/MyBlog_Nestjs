@@ -21,7 +21,9 @@ export class PostsService {
 
   async getPosts(offset: number) {
     const posts = await this.postsRepository.find({
+      select: ['uuid', 'title', 'content', 'category_id', 'created_at', 'updated_at'],
       where: {
+        is_published: true,
         is_deleted: false,
       },
       skip: offset * 20,
@@ -51,11 +53,19 @@ export class PostsService {
     const post = await this.postsRepository.findOneBy({
       uuid,
       is_deleted: false,
+      is_published: true,
     });
     if (!post) {
       throw new NotFoundException();
     }
-    return post;
+    return {
+      uuid: post.uuid,
+      title: post.title,
+      content: post.content,
+      category_id: post.category_id,
+      created_at: post.created_at,
+      updated_at: post.updated_at,
+    };
   }
 
   async deletePostByUUID(uuid: string) {
@@ -99,6 +109,7 @@ export class PostsService {
   ) {
     const post = await this.postsRepository.findOneBy({
       uuid,
+      is_published: true,
       is_deleted: false,
     });
     if (!post) {

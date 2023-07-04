@@ -36,9 +36,11 @@ export class CategoriesService {
 
   async getPostsByCategory(categoryId: number) {
     const posts = await this.postRepository.find({
+      select: ['uuid', 'title', 'content', 'category_id', 'created_at', 'updated_at'],
       where: {
         category_id: categoryId,
         is_deleted: false,
+        is_published: true,
       },
     });
     if (!posts) {
