@@ -6,11 +6,11 @@ import { CategoryHistoryEntity } from './entities/category_history.entity';
 import { PostEntity } from 'src/posts/entities/post.entity';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([CategoryEntity]),
-        TypeOrmModule.forFeature([CategoryHistoryEntity]),
-        TypeOrmModule.forFeature([PostEntity]),
-    ],
-    providers: [CategoriesService],
+  imports: [
+    TypeOrmModule.forFeature([CategoryEntity]),
+    TypeOrmModule.forFeature([CategoryHistoryEntity]),
+    TypeOrmModule.forFeature([PostEntity]),
+  ],
+  providers: [CategoriesService],
 })
 export class CategoriesModule { }
