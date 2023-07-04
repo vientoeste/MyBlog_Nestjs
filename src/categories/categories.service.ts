@@ -1,10 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryEntity } from './entities/category.entity';
 import { Repository } from 'typeorm';
 import { CategoryHistoryEntity } from './entities/category_history.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { PostEntity } from 'src/posts/entities/post.entity';
+import { NotUpdatedException } from 'src/common/exception';
+import { getDateForDb } from 'src/common/util';
+import { ResultSetHeader } from 'mysql2';
+import { historyMonitor } from 'src/main';
 
 @Injectable()
 export class CategoriesService {
@@ -47,5 +51,44 @@ export class CategoriesService {
       throw new NotFoundException();
     }
     return posts;
+  }
+
+  async deleteCategoryById(categoryId: number) {
+    // [TODO] needs refactoring to reduce query count
+    const category = await this.categoryRepository.findOneBy({
+      id: categoryId,
+      is_deleted: false,
+    });
+    if (!category) {
+      throw new NotFoundException('category not found');
+    }
+
+    const { affected } = await this.categoryRepository.update({
+      id: categoryId,
+      is_deleted: false,
+    }, {
+      is_deleted: true,
+    });
+    if (affected !== 1) {
+      console.log('not updated');
+      throw new NotUpdatedException();
+    }
+
+    const categoryHistoryObjToStore = {
+      category_id: category.id,
+      name: category.name,
+      description: category.description,
+      deleted_at: getDateForDb(),
+    };
+    this.categoryHistoryRepository.insert(categoryHistoryObjToStore)
+      .then((v: { raw: ResultSetHeader }) => {
+        if (v.raw.affectedRows !== 1) {
+          throw new InternalServerErrorException();
+        }
+      })
+      .catch((e) => {
+        console.error(e);
+        historyMonitor.insertFailedJob(categoryHistoryObjToStore as Record<string, undefined>);
+      });
   }
 }

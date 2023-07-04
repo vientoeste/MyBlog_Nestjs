@@ -47,9 +47,10 @@ export class CategoriesController {
 
   @Delete(':categoryId')
   @HttpCode(204)
-  deleteCategoryById(
+  async deleteCategoryById(
     @Param('categoryId') categoryId: number,
   ) {
+    await this.categoriesService.deleteCategoryById(categoryId);
     return;
   }
 }

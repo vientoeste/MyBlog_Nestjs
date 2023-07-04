@@ -23,9 +23,6 @@ export class CategoryHistoryEntity {
   @Column({ length: 19 })
   created_at: string;
 
-  @Column()
-  is_published: boolean;
-
   @Column({ length: 19 })
   deleted_at: string;
 }
