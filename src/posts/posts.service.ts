@@ -113,7 +113,7 @@ export class PostsService {
       is_deleted: false,
     });
     if (!post) {
-      throw new ForbiddenException();
+      throw new NotFoundException();
     }
     const postHistoryObjToStore = {
       post_uuid: post.uuid,
