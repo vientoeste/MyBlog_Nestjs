@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostEntity } from './entities/post.entity';
 import { Repository } from 'typeorm';
@@ -120,7 +120,6 @@ export class PostsService {
       title: post.title,
       content: post.content,
       category_id: post.category_id,
-      deleted_at: getDateForDb(),
     };
 
     await this.postsRepository.update(uuid, postDto);
