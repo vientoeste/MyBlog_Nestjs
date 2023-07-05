@@ -9,6 +9,7 @@ import { NotUpdatedException } from 'src/common/exception';
 import { getDateForDb } from 'src/common/util';
 import { ResultSetHeader } from 'mysql2';
 import { historyMonitor } from 'src/main';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Injectable()
 export class CategoriesService {
@@ -89,6 +90,38 @@ export class CategoriesService {
       .catch((e) => {
         console.error(e);
         historyMonitor.insertFailedJob(categoryHistoryObjToStore as Record<string, undefined>);
+      });
+  }
+
+  async updateCategory(
+    categoryDto: UpdateCategoryDto,
+    id: number,
+  ) {
+    const category = await this.categoryRepository.findOneBy({
+      id,
+      is_deleted: false,
+    });
+    if (!category) {
+      throw new NotFoundException();
+    }
+
+    const categoryHistoryObjToStore = {
+      category_id: id,
+      name: category.name,
+      description: category.description,
+    };
+
+    // [TODO] job sequence?
+    await this.categoryRepository.update(id, categoryDto);
+    this.categoryHistoryRepository.insert(categoryHistoryObjToStore)
+      .then((v: { raw: ResultSetHeader }) => {
+        if (v.raw.affectedRows !== 1) {
+          throw new InternalServerErrorException();
+        }
+      })
+      .catch((e) => {
+        console.error(e);
+        historyMonitor.insertFailedJob(categoryHistoryObjToStore as Record<string, unknown>);
       });
   }
 }
