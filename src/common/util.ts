@@ -14,9 +14,9 @@ export const getDateForDb = () => new Date().toISOString().replace(/T|Z/g, ' ').
 // [TODO] will it needs dependency?
 export class HistoryMonitor {
   // [TODO] type-safe logic needed
-  private failedJob: Record<string, undefined>[] = [];
+  private failedJob: Record<string, unknown>[] = [];
 
-  insertFailedJob(record: Record<string, undefined>) {
+  insertFailedJob(record: Record<string, unknown>) {
     this.failedJob.push(record);
   }
 

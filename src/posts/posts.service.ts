@@ -131,7 +131,7 @@ export class PostsService {
         }
       })
       .catch(() => {
-        historyMonitor.insertFailedJob(postHistoryObjToStore as Record<string, undefined>);
+        historyMonitor.insertFailedJob(postHistoryObjToStore as Record<string, unknown>);
       });
   }
 }
