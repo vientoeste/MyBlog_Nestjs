@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import { Injectable, NotFoundException, NotImplementedException, UnprocessableEntityException } from '@nestjs/common';
 import { v5 } from 'uuid';
 import { User } from './dto/user-info.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,48 +18,50 @@ export class UsersService {
   async createUser(name: string, email: string, password: string) {
     await this.checkUserExists(email, name);
 
-    const signupVerifyToken = v5(email.concat(new Date().toISOString()), process.env.NAMESPACE_UUID);
+    // const signupVerifyToken = v5(email.concat(new Date().toISOString()), process.env.NAMESPACE_UUID);
 
     const salt = await genSalt(12);
     const hashedPw = await hash(password, salt);
 
-    await this.saveUser(name, email, hashedPw, signupVerifyToken);
+    await this.saveUser(name, email, hashedPw);
   }
 
   private async checkUserExists(email: string, name: string) {
     const userInfo = await this.usersRepository.find({
-      where: [{ email }, { name }],
+      where: [{ email }, { username: name }],
     });
     if (userInfo.length !== 0) {
       throw new UnprocessableEntityException(`duplicate ${userInfo[0].email === email ? 'email' : 'name'}`);
     }
   }
 
-  private async saveUser(name: string, email: string, password: string, signupVerifyToken: string) {
+  private async saveUser(name: string, email: string, password: string) {
     await this.checkUserExists(email, name);
 
     const user = new UserEntity();
     user.uuid = v5(name, process.env.NAMESPACE_UUID);
-    user.name = name;
+    user.username = name;
     user.email = email;
     user.password = password;
-    user.signupVerifyToken = signupVerifyToken;
+    // user.signupVerifyToken = signupVerifyToken;
     await this.usersRepository.save(user);
   }
 
-  async verifyEmail(signupVerifyToken: string): Promise<string> {
-    const user = await this.usersRepository.findOne({
-      where: { signupVerifyToken },
-    });
-    if (!user) {
-      throw new NotFoundException('user not found');
-    }
+  // [TODO] removed signupVerifyToken: needs another method
+  verifyEmail(): Promise<string> {
+    // const user = await this.usersRepository.findOne({
+    //   where: { signupVerifyToken },
+    // });
+    // if (!user) {
+    //   throw new NotFoundException('user not found');
+    // }
 
-    return this.authService.issueToken({
-      uuid: user.uuid,
-      name: user.name,
-      email: user.email,
-    });
+    // return this.authService.issueToken({
+    //   uuid: user.uuid,
+    //   name: user.username,
+    //   email: user.email,
+    // });
+    throw new NotImplementedException();
   }
 
   async login(email: string, plainPw: string): Promise<string> {
@@ -72,7 +74,7 @@ export class UsersService {
 
     return this.authService.login({
       uuid: user.uuid,
-      name: user.name,
+      name: user.username,
       email: user.email,
       plainPw: plainPw,
       hashedPw: user.password,
@@ -90,7 +92,7 @@ export class UsersService {
 
     return {
       uuid: userInfo.uuid,
-      name: userInfo.name,
+      name: userInfo.username,
       email: userInfo.email,
     };
   }

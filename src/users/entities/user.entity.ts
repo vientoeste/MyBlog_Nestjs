@@ -1,19 +1,22 @@
+import { uuidTransformer } from 'src/common/util';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-@Entity('User')
+@Entity('user')
 export class UserEntity {
-  @PrimaryColumn()
+  @PrimaryColumn({
+    type: 'binary',
+    length: 16,
+    transformer: uuidTransformer,
+    generated: 'uuid',
+  })
   uuid: string;
 
   @Column({ length: 30 })
-  name: string;
+  username: string;
 
   @Column({ length: 30 })
   email: string;
 
   @Column({ length: 60 })
   password: string;
-
-  @Column({ length: 60 })
-  signupVerifyToken: string;
 }
