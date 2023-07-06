@@ -5,10 +5,10 @@ import { PostEntity } from './entities/post.entity';
 import { PostHistoryEntity } from './entities/post_history.entity';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([PostEntity]),
-        TypeOrmModule.forFeature([PostHistoryEntity]),
-    ],
-    providers: [PostsService],
+  imports: [
+    TypeOrmModule.forFeature([PostEntity]),
+    TypeOrmModule.forFeature([PostHistoryEntity]),
+  ],
+  providers: [PostsService],
 })
 export class PostsModule { }
