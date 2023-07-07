@@ -21,6 +21,9 @@ import { CategoriesService } from './categories/categories.service';
 import { CategoryEntity } from './categories/entities/category.entity';
 import { CategoryHistoryEntity } from './categories/entities/category_history.entity';
 import { CategoriesModule } from './categories/categories.module';
+import { CommentsService } from './comments/comments.service';
+import { CommentsModule } from './comments/comments.module';
+import { CommentEntity } from './comments/entities/comment.entity';
 
 @Module({
   imports: [
@@ -43,8 +46,10 @@ import { CategoriesModule } from './categories/categories.module';
     TypeOrmModule.forFeature([PostHistoryEntity]),
     TypeOrmModule.forFeature([CategoryEntity]),
     TypeOrmModule.forFeature([CategoryHistoryEntity]),
+    TypeOrmModule.forFeature([CommentEntity]),
     PostsModule,
     CategoriesModule,
+    CommentsModule,
   ],
   controllers: [
     PostsController, CategoriesController,
@@ -54,6 +59,7 @@ import { CategoriesModule } from './categories/categories.module';
     UsersService, AuthService,
     PostsService,
     CategoriesService,
+    CommentsService,
   ],
 })
 export class AppModule { }
