@@ -18,7 +18,7 @@ export class AuthGuard implements CanActivate {
       throw new BadRequestException('token not found');
     }
 
-    this.authService.validateToken(token);
+    req.payload = this.authService.validateToken(token);
 
     return true;
   }
