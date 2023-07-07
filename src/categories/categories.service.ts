@@ -84,6 +84,7 @@ export class CategoriesService {
     this.categoryHistoryRepository.insert(categoryHistoryObjToStore)
       .then((v: { raw: ResultSetHeader }) => {
         if (v.raw.affectedRows !== 1) {
+          historyMonitor.insertFailedJob(categoryHistoryObjToStore as Record<string, undefined>);
           throw new InternalServerErrorException();
         }
       })
@@ -116,6 +117,7 @@ export class CategoriesService {
     this.categoryHistoryRepository.insert(categoryHistoryObjToStore)
       .then((v: { raw: ResultSetHeader }) => {
         if (v.raw.affectedRows !== 1) {
+          historyMonitor.insertFailedJob(categoryHistoryObjToStore as Record<string, unknown>);
           throw new InternalServerErrorException();
         }
       })
