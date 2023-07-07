@@ -5,7 +5,6 @@ import { CommentsService } from './comments.service';
 import { AuthService } from 'src/auth/auth.service';
 import { RequestWithUser } from 'src/common/user.interface';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { PatchValidationPipe } from 'src/common/pipes/patch-validation.pipe';
 
 @Controller('posts/:post_uuid/comments')
 export class CommentsController {
