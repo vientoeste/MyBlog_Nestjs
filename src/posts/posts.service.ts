@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostEntity } from './entities/post.entity';
 import { Repository } from 'typeorm';
@@ -9,6 +9,7 @@ import { PostHistoryEntity } from './entities/post_history.entity';
 import { ResultSetHeader } from 'mysql2';
 import { historyMonitor } from 'src/main';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { FetchPostDTO, PostDTO } from './dto/get-post.dto';
 
 @Injectable()
 export class PostsService {
@@ -49,22 +50,33 @@ export class PostsService {
     });
   }
 
-  async getPostByUUID(uuid: string) {
-    const post = await this.postsRepository.findOneBy({
-      uuid,
-      is_deleted: false,
-      is_published: true,
-    });
-    if (!post) {
-      throw new NotFoundException();
-    }
+  async getPostByUUID(uuid: string): Promise<PostDTO> {
+    const post: FetchPostDTO[] = await this.postsRepository
+      .createQueryBuilder('p')
+      .select('BIN_TO_UUID(p.uuid)', 'uuid')
+      .addSelect('p.title', 'title')
+      .addSelect('p.content', 'content')
+      .addSelect('p.category_id', 'category_id')
+      .addSelect('p.created_at', 'created_at')
+      .addSelect('c.content', 'comment')
+      .addSelect('c.created_at', 'comment_created_at')
+      .addSelect('BIN_TO_UUID(c.user_uuid)', 'user_uuid')
+      .innerJoin('comment', 'c', 'p.uuid = c.post_uuid')
+      .where(`c.post_uuid = UUID_TO_BIN('${uuid}')`)
+      .getRawMany();
+
     return {
-      uuid: post.uuid,
-      title: post.title,
-      content: post.content,
-      category_id: post.category_id,
-      created_at: post.created_at,
-      updated_at: post.updated_at,
+      uuid: post[0].uuid,
+      title: post[0].title,
+      content: post[0].content,
+      categoryId: post[0].category_id,
+      createdAt: post[0].created_at,
+      updatedAt: post[0].updated_at,
+      comments: post.map(v => ({
+        content: v.comment,
+        userUuid: v.user_uuid,
+        createdAt: v.comment_created_at,
+      })),
     };
   }
 
