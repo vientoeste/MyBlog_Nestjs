@@ -96,4 +96,47 @@ export class CommentsService {
         historyMonitor.insertFailedJob(commentHistoryObjToStore as Record<string, unknown>);
       });
   }
+
+  async deleteComment(
+    commentUuid: string,
+    userUuid: string,
+  ) {
+    const comment = await this.commentsRepository.findOne({
+      where: {
+        uuid: commentUuid,
+      },
+    });
+    if (!comment) {
+      throw new NotFoundException();
+    }
+    if (userUuid !== comment.user_uuid) {
+      throw new ForbiddenException();
+    }
+
+    const { affected } = await this.commentsRepository.update({
+      uuid: commentUuid,
+    }, {
+      is_deleted: true,
+    });
+    if (affected !== 1) {
+      throw new InternalServerErrorException();
+    }
+
+    const commentHistoryObjToStore = {
+      comment_uuid: commentUuid,
+      content: comment.content,
+      user_uuid: userUuid,
+      post_uuid: comment.post_uuid,
+      deleted_at: getDateForDb(),
+    };
+    this.commentHistoryRepository.insert(commentHistoryObjToStore)
+      .then((v: { raw: ResultSetHeader }) => {
+        if (v.raw.affectedRows !== 1) {
+          throw new InternalServerErrorException();
+        }
+      })
+      .catch(() => {
+        historyMonitor.insertFailedJob(commentHistoryObjToStore);
+      });
+  }
 }

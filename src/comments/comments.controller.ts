@@ -53,10 +53,12 @@ export class CommentsController {
   @Delete(':comment_uuid')
   @UseGuards(AuthGuard)
   @HttpCode(204)
-  deleteCommentByUuid(
+  async deleteCommentByUuid(
     @Param('post_uuid') postUuid: string,
     @Param('comment_uuid') commentUuid: string,
+    @Request() req: RequestWithUser,
   ) {
+    await this.commentsService.deleteComment(commentUuid, req.payload.userUuid);
     return;
   }
 }
