@@ -1,16 +1,22 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CommentEntity } from './entities/comment.entity';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { createUUID, getDateForDb } from 'src/common/util';
 import { ResultSetHeader } from 'mysql2';
+import { UpdateCommentDto } from './dto/update-comment.dto';
+import { CommentHistoryEntity } from './entities/comment_history.entity';
+import { NotUpdatedException } from 'src/common/exception';
+import { historyMonitor } from 'src/main';
 
 @Injectable()
 export class CommentsService {
   constructor(
     @InjectRepository(CommentEntity)
     private commentsRepository: Repository<CommentEntity>,
+    @InjectRepository(CommentHistoryEntity)
+    private commentHistoryRepository: Repository<CommentHistoryEntity>,
   ) { }
 
   async getCommentsByPostUuid(postUuid: string) {
@@ -43,5 +49,51 @@ export class CommentsService {
       throw new InternalServerErrorException();
     }
     return;
+  }
+
+  async updateComment(
+    commentUuid: string,
+    commentDto: UpdateCommentDto,
+    userUuid: string,
+  ) {
+    const comment = await this.commentsRepository.findOne({
+      where: {
+        uuid: commentUuid,
+        is_deleted: false,
+      },
+    });
+    if (!comment) {
+      throw new NotFoundException();
+    }
+    if (comment.user_uuid !== userUuid) {
+      throw new ForbiddenException();
+    }
+
+    const commentHistoryObjToStore = {
+      comment_uuid: comment.uuid,
+      content: comment.content,
+      user_uuid: userUuid,
+    };
+
+    const { affected } = await this.commentsRepository.update({
+      uuid: commentUuid,
+    }, {
+      content: commentDto.content,
+    });
+    if (affected !== 1) {
+      throw new NotUpdatedException();
+    }
+
+    this.commentHistoryRepository.insert(commentHistoryObjToStore)
+      .then((v: { raw: ResultSetHeader }) => {
+        if (v.raw.affectedRows !== 1) {
+          historyMonitor.insertFailedJob(commentHistoryObjToStore as Record<string, unknown>);
+          throw new InternalServerErrorException();
+        }
+      })
+      .catch((e) => {
+        console.error(e);
+        historyMonitor.insertFailedJob(commentHistoryObjToStore as Record<string, unknown>);
+      });
   }
 }

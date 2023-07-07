@@ -24,6 +24,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { CommentsService } from './comments/comments.service';
 import { CommentsModule } from './comments/comments.module';
 import { CommentEntity } from './comments/entities/comment.entity';
+import { CommentHistoryEntity } from './comments/entities/comment_history.entity';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { CommentEntity } from './comments/entities/comment.entity';
     TypeOrmModule.forFeature([CategoryEntity]),
     TypeOrmModule.forFeature([CategoryHistoryEntity]),
     TypeOrmModule.forFeature([CommentEntity]),
+    TypeOrmModule.forFeature([CommentHistoryEntity]),
     PostsModule,
     CategoriesModule,
     CommentsModule,
