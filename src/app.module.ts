@@ -53,10 +53,6 @@ import { CategoriesModule } from './categories/categories.module';
   providers: [
     UsersService, AuthService,
     PostsService,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: JwtInterceptor,
-    },
     CategoriesService,
   ],
 })
