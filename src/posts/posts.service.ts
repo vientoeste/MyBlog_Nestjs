@@ -1,4 +1,4 @@
-import { Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostEntity } from './entities/post.entity';
 import { Repository } from 'typeorm';
@@ -58,11 +58,15 @@ export class PostsService {
       .addSelect('p.content', 'content')
       .addSelect('p.category_id', 'category_id')
       .addSelect('p.created_at', 'created_at')
+      .addSelect('BIN_TO_UUID(c.uuid)', 'comment_uuid')
+      .addSelect('u.username', 'username')
       .addSelect('c.content', 'comment')
       .addSelect('c.created_at', 'comment_created_at')
       .addSelect('BIN_TO_UUID(c.user_uuid)', 'user_uuid')
       .innerJoin('comment', 'c', 'p.uuid = c.post_uuid')
+      .innerJoin('user', 'u', 'c.user_uuid = u.uuid')
       .where(`c.post_uuid = UUID_TO_BIN('${uuid}')`)
+      .andWhere('c.is_deleted = false')
       .getRawMany();
 
     return {
@@ -73,8 +77,10 @@ export class PostsService {
       createdAt: post[0].created_at,
       updatedAt: post[0].updated_at,
       comments: post.map(v => ({
-        content: v.comment,
+        uuid: v.comment_uuid,
         userUuid: v.user_uuid,
+        username: v.username,
+        content: v.comment,
         createdAt: v.comment_created_at,
       })),
     };

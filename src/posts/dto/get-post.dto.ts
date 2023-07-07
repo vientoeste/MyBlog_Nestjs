@@ -12,8 +12,10 @@ export class PostDTO {
   readonly updatedAt: string;
 
   readonly comments: {
-    content: string,
+    uuid: string,
     userUuid: string,
+    username: string,
+    content: string,
     createdAt: string
   }[];
 }
@@ -31,9 +33,13 @@ export class FetchPostDTO {
 
   readonly updated_at: string;
 
+  readonly comment_uuid: string;
+
   readonly comment: string;
 
   readonly user_uuid: string;
+
+  readonly username: string;
 
   readonly comment_created_at: string;
 }
