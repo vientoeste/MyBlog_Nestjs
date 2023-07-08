@@ -6,6 +6,7 @@ import { UserEntity } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { AuthService } from 'src/auth/auth.service';
 import { genSalt, hash } from 'bcrypt';
+import { NotUpdatedException } from 'src/common/exception';
 
 @Injectable()
 export class UsersService {
@@ -100,8 +101,7 @@ export class UsersService {
   async remove(uuid: string) {
     const res = await this.usersRepository.delete({ uuid });
     if (res.affected !== 1) {
-      return false;
+      throw new NotUpdatedException();
     }
-    return true;
   }
 }

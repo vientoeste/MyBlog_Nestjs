@@ -59,10 +59,6 @@ export class UsersController {
       throw new ForbiddenException('cannot access to other user info');
     }
 
-    await this.usersService.remove(userUuid).then((isRemoved) => {
-      if (!isRemoved) {
-        throw new NotFoundException('user not found');
-      }
-    });
+    await this.usersService.remove(userUuid);
   }
 }
