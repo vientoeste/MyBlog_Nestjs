@@ -1,9 +1,10 @@
-import { Body, Controller, DefaultValuePipe, Delete, Get, HttpCode, Param, ParseIntPipe, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Delete, Get, HttpCode, Param, ParseIntPipe, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostsService } from './posts.service';
 import { PatchValidationPipe } from 'src/common/pipes/patch-validation.pipe';
 import { camelCaseToSnakeCase } from 'src/common/util';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('posts')
 export class PostsController {
@@ -22,6 +23,7 @@ export class PostsController {
 
   @Post()
   @HttpCode(201)
+  @UseGuards(AuthGuard)
   async createPost(
     @Body() createPostDto: CreatePostDto,
   ) {
@@ -39,6 +41,7 @@ export class PostsController {
 
   @Patch(':post_uuid')
   @HttpCode(200)
+  @UseGuards(AuthGuard)
   async updatePostByUuid(
     @Param('post_uuid') postUuid: string,
     @Body(new PatchValidationPipe<UpdatePostDto>(['title', 'content', 'categoryId'])) updatePostDto: UpdatePostDto,
@@ -51,6 +54,7 @@ export class PostsController {
 
   @Delete(':post_uuid')
   @HttpCode(204)
+  @UseGuards(AuthGuard)
   async deletePostByUuid(
     @Param('post_uuid') postUuid: string,
   ) {

@@ -1,8 +1,9 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpCode, Param, Patch, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoriesService } from './categories.service';
 import { PatchValidationPipe } from 'src/common/pipes/patch-validation.pipe';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('categories')
 export class CategoriesController {
@@ -18,6 +19,7 @@ export class CategoriesController {
 
   @Post()
   @HttpCode(201)
+  @UseGuards(AuthGuard)
   async createNewCategory(
     @Body() createCategoryDto: CreateCategoryDto,
   ) {
@@ -39,6 +41,7 @@ export class CategoriesController {
 
   @Patch(':categoryId')
   @HttpCode(200)
+  @UseGuards(AuthGuard)
   async updateCategoryInfoById(
     @Param('categoryId') categoryId: number,
     @Body(new PatchValidationPipe<UpdateCategoryDto>(['name', 'description'])) updateCategoryDto: UpdateCategoryDto,
@@ -49,6 +52,7 @@ export class CategoriesController {
 
   @Delete(':categoryId')
   @HttpCode(204)
+  @UseGuards(AuthGuard)
   async deleteCategoryById(
     @Param('categoryId') categoryId: number,
   ) {
