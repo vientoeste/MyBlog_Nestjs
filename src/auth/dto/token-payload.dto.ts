@@ -1,11 +1,11 @@
 export class TokenPayload {
-    name: string;
+  name: string;
 
-    email: string;
+  email: string;
 
-    iat: number;
+  iat: number;
 
-    exp: number;
+  exp: number;
 
-    aud: string;
+  aud: string;
 }

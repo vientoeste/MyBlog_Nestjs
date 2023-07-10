@@ -10,6 +10,7 @@ import { ResultSetHeader } from 'mysql2';
 import { historyMonitor } from 'src/main';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { FetchPostDTO, PostDTO } from './dto/get-post.dto';
+import { PreviewPostDTO } from './dto/get-post-preview.dto';
 
 @Injectable()
 export class PostsService {
@@ -20,7 +21,7 @@ export class PostsService {
     private postHistoriesRepository: Repository<PostHistoryEntity>,
   ) { }
 
-  async getPosts(offset: number) {
+  async getPostsPreview(offset: number): Promise<PreviewPostDTO[]> {
     const posts = await this.postsRepository.find({
       select: ['uuid', 'title', 'content', 'category_id', 'created_at', 'updated_at'],
       where: {
@@ -36,10 +37,17 @@ export class PostsService {
     if (!posts) {
       throw new InternalServerErrorException('query failed');
     }
-    return posts;
+    return posts.map((post) => ({
+      uuid: post.uuid,
+      title: post.title,
+      content: post.content,
+      categoryId: post.category_id,
+      createdAt: post.created_at,
+      updatedAt: post.updated_at,
+    }));
   }
 
-  async createPost(createPostDto: CreatePostDto) {
+  async createPost(createPostDto: CreatePostDto): Promise<void> {
     const now = getDateForDb();
     await this.postsRepository.insert({
       uuid: createUUID(createPostDto.title.concat(now)),
@@ -86,7 +94,7 @@ export class PostsService {
     };
   }
 
-  async deletePostByUUID(uuid: string) {
+  async deletePostByUUID(uuid: string): Promise<void> {
     // [TODO] needs refactoring to reduce query count
     const post = await this.postsRepository.findOneBy({
       uuid,
@@ -124,7 +132,7 @@ export class PostsService {
   async updatePost(
     postDto: UpdatePostDto,
     uuid: string,
-  ) {
+  ): Promise<void> {
     const post = await this.postsRepository.findOneBy({
       uuid,
       is_published: true,

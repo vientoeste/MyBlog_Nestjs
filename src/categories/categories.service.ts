@@ -10,6 +10,8 @@ import { getDateForDb } from 'src/common/util';
 import { ResultSetHeader } from 'mysql2';
 import { historyMonitor } from 'src/main';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { PreviewPostDTO } from 'src/posts/dto/get-post-preview.dto';
+import { CategoryDto } from './dto/get-category';
 
 @Injectable()
 export class CategoriesService {
@@ -22,24 +24,30 @@ export class CategoriesService {
     private postRepository: Repository<PostEntity>,
   ) { }
 
-  async getAllCategories() {
+  async getAllCategories(): Promise<CategoryDto[]> {
     const categories = await this.categoryRepository.find({
       where: { is_deleted: false },
     });
     if (!categories) {
       throw new NotFoundException();
     }
-    return categories;
+    return categories.map((category) => ({
+      id: category.id,
+      name: category.name,
+      description: category.description ?? undefined,
+      createdAt: category.created_at,
+      updatedAt: category.updated_at,
+    }));
   }
 
-  async createCategory(dto: CreateCategoryDto) {
+  async createCategory(dto: CreateCategoryDto): Promise<void> {
     await this.categoryRepository.insert({
       name: dto.name,
       description: dto.description,
     });
   }
 
-  async getPostsByCategory(categoryId: number) {
+  async getPostsByCategory(categoryId: number): Promise<PreviewPostDTO[]> {
     const posts = await this.postRepository.find({
       select: ['uuid', 'title', 'content', 'category_id', 'created_at', 'updated_at'],
       where: {
@@ -51,10 +59,17 @@ export class CategoriesService {
     if (!posts) {
       throw new NotFoundException();
     }
-    return posts;
+    return posts.map((post) => ({
+      uuid: post.uuid,
+      title: post.title,
+      content: post.content,
+      categoryId: post.category_id,
+      createdAt: post.created_at,
+      updatedAt: post.updated_at,
+    }));
   }
 
-  async deleteCategoryById(categoryId: number) {
+  async deleteCategoryById(categoryId: number): Promise<void> {
     // [TODO] needs refactoring to reduce query count
     const category = await this.categoryRepository.findOneBy({
       id: categoryId,
@@ -97,7 +112,7 @@ export class CategoriesService {
   async updateCategory(
     categoryDto: UpdateCategoryDto,
     id: number,
-  ) {
+  ): Promise<void> {
     const category = await this.categoryRepository.findOneBy({
       id,
       is_deleted: false,

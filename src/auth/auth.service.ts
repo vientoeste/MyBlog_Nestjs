@@ -4,10 +4,11 @@ import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import { UserLoginDto } from './dto/user-login.dto';
 import { IssueTokenDto } from './dto/issue-token.dto';
 import { TokenPayload } from './dto/token-payload.dto';
+import { UserAuthInfo } from './dto/user-auth-info.dto';
 
 @Injectable()
 export class AuthService {
-  async login(user: UserLoginDto) {
+  async login(user: UserLoginDto): Promise<string> {
     const authRes = await comparePw(user.plainPw, user.hashedPw);
     if (!authRes) {
       throw new UnauthorizedException('login failed');
@@ -16,7 +17,7 @@ export class AuthService {
     return this.issueToken(user);
   }
 
-  issueToken(user: IssueTokenDto) {
+  issueToken(user: IssueTokenDto): string {
     const payload = { name: user.name, email: user.email };
     const { uuid } = user;
 
@@ -29,7 +30,7 @@ export class AuthService {
     return token;
   }
 
-  validateToken(jwtToken: string) {
+  validateToken(jwtToken: string): UserAuthInfo {
     try {
       const payload = verify(jwtToken, process.env.JWT_SECRET) as (JwtPayload | string) & TokenPayload;
       const { aud, email } = payload;

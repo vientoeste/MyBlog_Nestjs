@@ -1,11 +1,11 @@
-export class CommentDTO {
+export class PreviewPostDTO {
   readonly uuid: string;
 
-  readonly postUuid: string;
-
-  readonly userUuid: string;
+  readonly title: string;
 
   readonly content: string;
+
+  readonly categoryId: number;
 
   readonly createdAt: string;
 

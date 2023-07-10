@@ -4,6 +4,8 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoriesService } from './categories.service';
 import { PatchValidationPipe } from 'src/common/pipes/patch-validation.pipe';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { PreviewPostDTO } from 'src/posts/dto/get-post-preview.dto';
+import { CategoryDto } from './dto/get-category';
 
 @Controller('categories')
 export class CategoriesController {
@@ -13,7 +15,7 @@ export class CategoriesController {
 
   @Get()
   @HttpCode(200)
-  async findAll() {
+  async findAll(): Promise<CategoryDto[]> {
     return this.categoriesService.getAllCategories();
   }
 
@@ -22,7 +24,7 @@ export class CategoriesController {
   @UseGuards(AuthGuard)
   async createNewCategory(
     @Body() createCategoryDto: CreateCategoryDto,
-  ) {
+  ): Promise<void> {
     if (!createCategoryDto.name) {
       throw new BadRequestException();
     }
@@ -34,7 +36,7 @@ export class CategoriesController {
   @HttpCode(200)
   async fetchPostsById(
     @Param('categoryId') categoryId: number,
-  ) {
+  ): Promise<PreviewPostDTO[]> {
     const posts = await this.categoriesService.getPostsByCategory(categoryId);
     return posts;
   }
@@ -45,7 +47,7 @@ export class CategoriesController {
   async updateCategoryInfoById(
     @Param('categoryId') categoryId: number,
     @Body(new PatchValidationPipe<UpdateCategoryDto>(['name', 'description'])) updateCategoryDto: UpdateCategoryDto,
-  ) {
+  ): Promise<void> {
     await this.categoriesService.updateCategory(updateCategoryDto, categoryId);
     return;
   }
@@ -55,7 +57,7 @@ export class CategoriesController {
   @UseGuards(AuthGuard)
   async deleteCategoryById(
     @Param('categoryId') categoryId: number,
-  ) {
+  ): Promise<void> {
     await this.categoriesService.deleteCategoryById(categoryId);
     return;
   }

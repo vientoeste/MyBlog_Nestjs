@@ -5,6 +5,8 @@ import { PostsService } from './posts.service';
 import { PatchValidationPipe } from 'src/common/pipes/patch-validation.pipe';
 import { camelCaseToSnakeCase } from 'src/common/util';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { PostDTO } from './dto/get-post.dto';
+import { PreviewPostDTO } from './dto/get-post-preview.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -16,8 +18,8 @@ export class PostsController {
   @HttpCode(200)
   async getPostPreviews(
     @Query('offset', new DefaultValuePipe(0), new ParseIntPipe({ errorHttpStatusCode: 406 })) offset: number,
-  ) {
-    const posts = await this.postsService.getPosts(offset);
+  ): Promise<PreviewPostDTO[]> {
+    const posts = await this.postsService.getPostsPreview(offset);
     return posts;
   }
 
@@ -26,7 +28,7 @@ export class PostsController {
   @UseGuards(AuthGuard)
   async createPost(
     @Body() createPostDto: CreatePostDto,
-  ) {
+  ): Promise<void> {
     await this.postsService.createPost(createPostDto);
   }
 
@@ -34,7 +36,7 @@ export class PostsController {
   @HttpCode(200)
   async getPostByUuid(
     @Param('post_uuid', new ParseUUIDPipe({ errorHttpStatusCode: 406 })) postUuid: string,
-  ) {
+  ): Promise<PostDTO> {
     const post = await this.postsService.getPostByUUID(postUuid);
     return post;
   }
@@ -45,7 +47,7 @@ export class PostsController {
   async updatePostByUuid(
     @Param('post_uuid') postUuid: string,
     @Body(new PatchValidationPipe<UpdatePostDto>(['title', 'content', 'categoryId'])) updatePostDto: UpdatePostDto,
-  ) {
+  ): Promise<void> {
     // [TODO] optimizable
     const dto = camelCaseToSnakeCase(new UpdatePostDto(updatePostDto) as Record<string, string | number>);
     await this.postsService.updatePost(dto, postUuid);
@@ -57,7 +59,7 @@ export class PostsController {
   @UseGuards(AuthGuard)
   async deletePostByUuid(
     @Param('post_uuid') postUuid: string,
-  ) {
+  ): Promise<void> {
     await this.postsService.deletePostByUUID(postUuid);
     return;
   }

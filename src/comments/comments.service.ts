@@ -9,6 +9,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { CommentHistoryEntity } from './entities/comment_history.entity';
 import { NotUpdatedException } from 'src/common/exception';
 import { historyMonitor } from 'src/main';
+import { CommentDTO } from './dto/get-comment';
 
 @Injectable()
 export class CommentsService {
@@ -19,7 +20,7 @@ export class CommentsService {
     private commentHistoryRepository: Repository<CommentHistoryEntity>,
   ) { }
 
-  async getCommentsByPostUuid(postUuid: string) {
+  async getCommentsByPostUuid(postUuid: string): Promise<CommentDTO[]> {
     const comments = await this.commentsRepository.find({
       where: {
         post_uuid: postUuid,
@@ -28,14 +29,21 @@ export class CommentsService {
     if (!comments) {
       throw new NotFoundException();
     }
-    return comments;
+    return comments.map((comment) => ({
+      uuid: comment.uuid,
+      postUuid: comment.post_uuid,
+      userUuid: comment.user_uuid,
+      content: comment.content,
+      createdAt: comment.created_at,
+      updatedAt: comment.updated_at,
+    }));
   }
 
   async createComment(
     postUuid: string,
     commentDto: CreateCommentDto,
     userUuid: string,
-  ) {
+  ): Promise<void> {
     const now = getDateForDb();
     const res = await this.commentsRepository.insert({
       uuid: createUUID(userUuid.concat(commentDto.content, now)),
@@ -55,7 +63,7 @@ export class CommentsService {
     commentUuid: string,
     commentDto: UpdateCommentDto,
     userUuid: string,
-  ) {
+  ): Promise<void> {
     const comment = await this.commentsRepository.findOne({
       where: {
         uuid: commentUuid,
@@ -100,7 +108,7 @@ export class CommentsService {
   async deleteComment(
     commentUuid: string,
     userUuid: string,
-  ) {
+  ): Promise<void> {
     const comment = await this.commentsRepository.findOne({
       where: {
         uuid: commentUuid,
